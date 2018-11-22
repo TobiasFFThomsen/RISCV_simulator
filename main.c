@@ -5,6 +5,9 @@
 
 unsigned char instruction[memSpace][4]; 
 unsigned int instructionCombined[memSpace]; 
+
+unsigned int reg[32]; 
+
 int finalInstruction = 0; 
 
 struct instructionSet{
@@ -73,28 +76,24 @@ void printInstructionMatrix(){
 void formatFinder(){
 	char format; 
 	for(int i = 0 ; i <= finalInstruction ; i++){
-		
         instr.opcode[i] = instructionCombined[i] & 0x7F;
-		instr.opcode[0] = 0x3B;
 		switch(instr.opcode[i]){
 			case 0x33: 
-			case 0x3B:
 				format = 'R';
 				break;
-			case 0x3 :
-//			case 0xF :
+			case 0x03:
 			case 0x13:
-			case 0x1B:
-//			case 0xF : 
+            case 0x67:
 				format = 'I';
 				break;
 			case 0x23 : 
 				format = 'S';
 				break;
 			case 0x63 : 
-				format = 'B';
+				format = 'B';       //SB
 				break;
 			case 0x17 : 
+            case 0x37 :
 				format = 'U';
 				break;
 			case 0x6F : 
@@ -118,6 +117,7 @@ void formatFinder(){
 				instr.imm[i] = (instructionCombined[i] >> 20) & 0x1F;
 				break; 
 			case 'S' :
+                
 				break; 
 			case 'B' :
 				break; 
@@ -127,11 +127,40 @@ void formatFinder(){
 				break; 
 		}
 	}
-		int num = 0; 
+		int num = 5; 
 		printf("opcode: %X\nrd: %X\nfunct3: %X\nrs1: %X\nrs2: %X\nfunct7: %X\nimm: %X\n", instr.opcode[num], instr.rd[num], instr.funct3[num], instr.rs1[num], instr.rs2[num], instr.funct7[num], instr.imm[num]);
 }
 
 void instructionCase(){
+    for(int i = 0; i < finalInstruction){
+            switch(intstr.opcode[i]){
+                case(0x03)  :
+                    //lb
+                    //lh
+                    //lbu
+                    //lhu
+                case(0x13)  :
+                    if(instr.funct3[i]==0)
+                        reg[rd] = reg[rs1]+imm;    //addi
+                    if(instr.funct3[i]==0x00||instr.funct7==0x00)
+                        reg[rd] = reg[rs1]<<imm;   //slli
+                    if(instr.funct3[i]==0x02){
+                        if(reg[rs1]<imm){
+                            reg[rd] = 1;           //slti
+                        }else{
+                            reg[rd] = 0;        
+                        }
+                    //sltiu
+                    //xori
+                    //srli
+                    //srai
+                    //ori
+                    //andi
+                 case(0x33) :
+                    
+            }
+    }
+    
 	
 }
 
