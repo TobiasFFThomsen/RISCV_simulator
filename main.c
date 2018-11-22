@@ -141,40 +141,76 @@ void instructionCase(){
                     //lhu
                 case(0x13)  :
                     if(instr.funct3[i]==0x00)
-                        reg[instr.rd[i]] = reg[0]+instr.imm[i];                                             //addi
+                        reg[instr.rd[i]] = reg[0]+instr.imm[i];                                                 //addi
                         
-                    if(instr.funct3[i]==0x00||instr.funct7[i]==0x00)
-                        reg[instr.rd[i]] = reg[instr.rs1[i]]<<instr.imm[i];                                 //slli
+                    if(instr.funct3[i]==0x00&&instr.funct7[i]==0x00)
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]<<instr.imm[i];                                     //slli
                         
                     if(instr.funct3[i]==0x02){
                         if(reg[instr.rs1[i]]<instr.imm[i]){
-                            reg[instr.rd[i]] = 1;                                                           //slti
+                            reg[instr.rd[i]] = 1;                                                               //slti
                         }else{
                             reg[instr.rd[i]] = 0;        
                            }
                            
                    if(instr.funct3[i]==0x04){
-                            reg[instr.rd[i]] = reg[instr.rs1[i]]^instr.imm[i];                                  //xori     
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]^instr.imm[i];                                      //xori     
                    }
-                   if(instr.funct3[i]==0x05||instr.funct7[i]==0x00){
+                   if(instr.funct3[i]==0x05&&instr.funct7[i]==0x00){
                        reg[instr.rd[i]] = (unsigned char)reg[instr.rs1[i]]>>instr.imm[i];                       //srli
                    }
 
-                    if(instr.funct7[i]==0x05||instr.funct3[i]==0x20){                                           //srai
+                    if(instr.funct3[i]==0x05&&instr.funct3[i]==0x20){                                           //srai
                         reg[instr.rd[i]] = reg[instr.rs1[i]]>>instr.imm[i];
                     }
                     
-                    if(instr.funct7[i]==0x06){
+                    if(instr.funct3[i]==0x06){
                         reg[instr.rd[i]] = reg[instr.rs1[i]]|instr.imm[i];                                      //ori
                     }
                     
-                    if(instr.funct7[i]==0x07){
+                    if(instr.funct3[i]==0x07){
                         reg[instr.rd[i]] = reg[instr.rs1[i]]+instr.imm[i];                                      //andi
                     }
                     
                  case(0x33) : 
-                    if(instr)
-                    
+                    if(instr.funct3[i]==0x00&&instr.funct7[i]==0x00){
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]+reg[instr.rs2[i]];                                 //add
+                    }
+                    if(instr.funct3[i]==0x0&&instr.funct7[i]==0x20){
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]-reg[instr.rs2[i]];                                 //sub
+                    }
+                    if(instr.funct3[i]==0x01&&instr.funct7[i]==0x00){                                           //sll
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]>>reg[instr.rs2[i]];
+                    }
+                    if(instr.funct3[i]==0x02&&instr.funct7[i]=0x00){                                            //slt
+                        if(reg[instr.rs1]<reg[instr.rs2]){
+                            reg[instr.rd[i]] = 1;
+                        }else{
+                            reg[instr.rd[i]] = 0;
+                        }
+                    }
+                    if(instr.funct3[i]==0x03&&instr.funct7[i]==0x00){                                           //sltu
+                        if((unsigned char)reg[instr.rs1]<reg[instr.rs2]){
+                            reg[instr.rd[i]] = 1;   
+                        }else{
+                            reg[instr.rd[i]] = 0;
+                        }
+                    }
+                    if(instr.funct3[i]==0x04){  
+                        reg[instr.rd[i]] = reg[instr.rs1]^reg[instr.rs2];                                       //xor
+                    }
+                    if(instr.funct3[i]==0x05){
+                        reg[instr.rd[i]] = (unsigned char)reg[instr.rs1]>>reg[instr.rs2];                       //srl
+                    }
+                    if(instr.funct3[i]==0x20){
+                        reg[instr.rd[i]] = reg[instr.rs1]>>reg[instr.rs2];                                      //sra       
+                    }
+                    if(instr.funct3[i]==0x06){
+                        reg[instr.rd[i]] = reg[instr.rs1] | reg[instr.rs2];                                     //or
+                    }
+                    if(instr.funct3[i]==0x07){
+                        reg[]
+                    }
             }
         }
     }
