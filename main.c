@@ -132,42 +132,82 @@ void formatFinder(){
 }
 
 void instructionCase(){
-    for(int i = 0; i < finalInstruction){
-            switch(intstr.opcode[i]){
+    for(int i = 0; i < finalInstruction; i++){
+            switch(instr.opcode[i]){
                 case(0x03)  :
                     //lb
                     //lh
                     //lbu
                     //lhu
                 case(0x13)  :
-                    if(instr.funct3[i]==0)
-                        reg[rd] = reg[rs1]+imm;    //addi
-                    if(instr.funct3[i]==0x00||instr.funct7==0x00)
-                        reg[rd] = reg[rs1]<<imm;   //slli
+                    if(instr.funct3[i]==0x00)
+                        reg[instr.rd[i]] = reg[0]+instr.imm[i];                                             //addi
+                        
+                    if(instr.funct3[i]==0x00||instr.funct7[i]==0x00)
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]<<instr.imm[i];                                 //slli
+                        
                     if(instr.funct3[i]==0x02){
-                        if(reg[rs1]<imm){
-                            reg[rd] = 1;           //slti
+                        if(reg[instr.rs1[i]]<instr.imm[i]){
+                            reg[instr.rd[i]] = 1;                                                           //slti
                         }else{
-                            reg[rd] = 0;        
-                        }
-                    //sltiu
-                    //xori
-                    //srli
-                    //srai
-                    //ori
-                    //andi
-                 case(0x33) :
+                            reg[instr.rd[i]] = 0;        
+                           }
+                           
+                   if(instr.funct3[i]==0x04){
+                            reg[instr.rd[i]] = reg[instr.rs1[i]]^instr.imm[i];                                  //xori     
+                   }
+                   if(instr.funct3[i]==0x05||instr.funct7[i]==0x00){
+                       reg[instr.rd[i]] = (unsigned char)reg[instr.rs1[i]]>>instr.imm[i];                       //srli
+                   }
+
+                    if(instr.funct7[i]==0x05||instr.funct3[i]==0x20){                                           //srai
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]>>instr.imm[i];
+                    }
+                    
+                    if(instr.funct7[i]==0x06){
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]|instr.imm[i];                                      //ori
+                    }
+                    
+                    if(instr.funct7[i]==0x07){
+                        reg[instr.rd[i]] = reg[instr.rs1[i]]+instr.imm[i];                                      //andi
+                    }
+                    
+                 case(0x33) : 
+                    if(instr)
                     
             }
+        }
     }
+} 
+
+
+
+
+
+void test(){
+    char s  = 0xF0;
+   // char us = (unsigned)s;
+
+    char sl = s>>1;
+    char sa = (unsigned char)s>>1;
     
-	
+    printf("original %X\n", s);
+    printf("Logical shift: %X\n", sa);
+    printf("Algo shift: %X\n", sl); 
+    
+    
+    
+    
+   // printf("unsigned representation %u", neg);
+    
 }
 
+
 int main(int argc, char **argv){
-	readBinFile();
+/*	readBinFile();
 	formatFinder();
 	instructionCase();
-	printInstructionMatrix(); 
+	printInstructionMatrix(); */
+    test();
 	return 0;
 }
