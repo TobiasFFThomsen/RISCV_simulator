@@ -140,11 +140,13 @@ void instructionCase(){
                     //lbu
                     //lhu
                 case(0x13)  :
-                    if(instr.funct3[i]==0x00)
+                    if(instr.funct3[i]==0x00){
                         reg[instr.rd[i]] = reg[0]+instr.imm[i];                                                 //addi
-                        
-                    if(instr.funct3[i]==0x00&&instr.funct7[i]==0x00)
+                    }
+    
+                    if(instr.funct3[i]==0x00&&instr.funct7[i]==0x00){
                         reg[instr.rd[i]] = reg[instr.rs1[i]]<<instr.imm[i];                                     //slli
+                    }
                         
                     if(instr.funct3[i]==0x02){
                         if(reg[instr.rs1[i]]<instr.imm[i]){
@@ -152,7 +154,8 @@ void instructionCase(){
                         }else{
                             reg[instr.rd[i]] = 0;        
                            }
-                           
+                    }
+                    
                    if(instr.funct3[i]==0x04){
                         reg[instr.rd[i]] = reg[instr.rs1[i]]^instr.imm[i];                                      //xori     
                    }
@@ -171,7 +174,8 @@ void instructionCase(){
                     if(instr.funct3[i]==0x07){
                         reg[instr.rd[i]] = reg[instr.rs1[i]]+instr.imm[i];                                      //andi
                     }
-                    
+                 break;  
+                 
                  case(0x33) : 
                     if(instr.funct3[i]==0x00&&instr.funct7[i]==0x00){
                         reg[instr.rd[i]] = reg[instr.rs1[i]]+reg[instr.rs2[i]];                                 //add
@@ -208,9 +212,15 @@ void instructionCase(){
                     if(instr.funct3[i]==0x06){
                         reg[instr.rd[i]] = reg[instr.rs1] | reg[instr.rs2];                                     //or
                     }
+                    break;
+                    
+                    case(0x37) :
                     if(instr.funct3[i]==0x07){
-                        reg[]
+                        reg[instr.rd[i]] = instr.imm<<12;                                                       //lui
                     }
+                    break;
+                    default:
+                    break;
             }
         }
     }
