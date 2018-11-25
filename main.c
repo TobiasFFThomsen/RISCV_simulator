@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#define memSpace 750000
+#define instructionCombinedSpace 750000
 
-unsigned int mem[memSpace];
+unsigned int instructionCombined[instructionCombinedSpace];
 unsigned char instruction[4]; 
 
 int finalInstructionNo = 0; 
-
-unsigned int reg[32]; 
+int ecallIndex = 11;
+unsigned int reg[33]; 
 
 
 struct instructionSet{
@@ -37,7 +37,7 @@ void readBinFile(){
 			instruction[i] = fileContent; 
 			fileContent = fgetc(fp);
 		}
-		mem[lineNo] = (instruction[0] << 24 | instruction[1] << 16 | instruction[2] << 8 | instruction[3] );
+		instructionCombined[lineNo] = (instruction[0] << 24 | instruction[1] << 16 | instruction[2] << 8 | instruction[3] );
 		lineNo++;
 	}
 	finalInstructionNo = lineNo;
@@ -45,7 +45,7 @@ void readBinFile(){
 
 char formatFinder(int pc){
 	char format; 
-	instr.opcode = mem[pc] & 0x7F;
+	instr.opcode = instructionCombined[pc] & 0x7F;
 	
 	switch(instr.opcode){
 		case 0x33: 
@@ -77,46 +77,46 @@ char formatFinder(int pc){
 void registerDecoder(char format, int pc){
 	switch(format){
 		case 'R' :
-			instr.rd = (mem[pc] >> 7) & 0x1F;
-			instr.funct3 = (mem[pc] >> 12) & 0x7;
-			instr.rs1 = (mem[pc] >> 15) & 0x1F;
-			instr.rs2 = (mem[pc] >> 20) & 0x1F;
-			instr.funct7 = (mem[pc] >> 25) & 0x7F;
+			instr.rd = (instructionCombined[pc] >> 7) & 0x1F;
+			instr.funct3 = (instructionCombined[pc] >> 12) & 0x7;
+			instr.rs1 = (instructionCombined[pc] >> 15) & 0x1F;
+			instr.rs2 = (instructionCombined[pc] >> 20) & 0x1F;
+			instr.funct7 = (instructionCombined[pc] >> 25) & 0x7F;
 			break; 
 		case 'I' :
-			instr.rd = (mem[pc] >> 7) & 0x1F;
-			instr.funct3 = (mem[pc] >> 12) & 0x7;
-			instr.rs1 = (mem[pc] >> 15) & 0x1F;
-			instr.imm = (mem[pc] >> 20) & 0xFFF;
+			instr.rd = (instructionCombined[pc] >> 7) & 0x1F;
+			instr.funct3 = (instructionCombined[pc] >> 12) & 0x7;
+			instr.rs1 = (instructionCombined[pc] >> 15) & 0x1F;
+			instr.imm = (instructionCombined[pc] >> 20) & 0xFFF;
 			break; 
 		case 'S' :
-			instr.imm = (mem[pc] >> 7) & 0x1F;
-			instr.funct3 = (mem[pc] >> 12) & 0x7;
-			instr.rs1 = (mem[pc] >> 15) & 0x1F;
-			instr.rs2 = (mem[pc] >> 20) & 0x1F;
-			instr.imm |= (mem[pc] >> 20) & 0xFE0; //imm[11:5]
+			instr.imm = (instructionCombined[pc] >> 7) & 0x1F;
+			instr.funct3 = (instructionCombined[pc] >> 12) & 0x7;
+			instr.rs1 = (instructionCombined[pc] >> 15) & 0x1F;
+			instr.rs2 = (instructionCombined[pc] >> 20) & 0x1F;
+			instr.imm |= (instructionCombined[pc] >> 20) & 0xFE0; //imm[11:5]
 			break; 
 		case 'B' :
-			instr.imm = (mem[pc] & 0xF00) >> 7; //imm[4:1]
-			instr.imm |= (mem[pc] & 0x80) << 4 ; //imm[11]
-			instr.funct3 = (mem[pc] >> 12) & 0x7;
-			instr.rs1 = (mem[pc] >> 15) & 0x1F;
-			instr.rs2 = (mem[pc] >> 20) & 0x1F;
-			instr.imm |= (mem[pc] & 0x7E000080) >> 20; //imm[10:5]
-			instr.imm |= (unsigned int)(mem[pc] & 0x80000000) >> 19; //imm[12]
+			instr.imm = (instructionCombined[pc] & 0xF00) >> 7; //imm[4:1]
+			instr.imm |= (instructionCombined[pc] & 0x80) << 4 ; //imm[11]
+			instr.funct3 = (instructionCombined[pc] >> 12) & 0x7;
+			instr.rs1 = (instructionCombined[pc] >> 15) & 0x1F;
+			instr.rs2 = (instructionCombined[pc] >> 20) & 0x1F;
+			instr.imm |= (instructionCombined[pc] & 0x7E000080) >> 20; //imm[10:5]
+			instr.imm |= (unsigned int)(instructionCombined[pc] & 0x80000000) >> 19; //imm[12]
 			break; 
 		case 'U' :
-			instr.rd = (mem[pc] >> 7) & 0x1F;
-			instr.funct3 = (mem[pc] >> 12) & 0x7;
-			instr.imm = mem[pc] & 0xFFFFF000;
+			instr.rd = (instructionCombined[pc] >> 7) & 0x1F;
+			instr.funct3 = (instructionCombined[pc] >> 12) & 0x7;
+			instr.imm = instructionCombined[pc] & 0xFFFFF000;
 			break; 
 		case 'J' :
-			instr.rd = (mem[pc] >> 7) & 0x1F;
-			instr.funct3 = (mem[pc] >> 12) & 0x7;
-			instr.imm = (unsigned int)(mem[pc] & 0x80000000) >> 11; //imm[20]
-			instr.imm |= (mem[pc] & 0x7FE00000) >> 20; //imm[10:1]
-			instr.imm |= (mem[pc] & 0x100000) >> 9; //imm[11]
-			instr.imm |= mem[pc] & 0xFF0000; //imm[19:12]
+			instr.rd = (instructionCombined[pc] >> 7) & 0x1F;
+			instr.funct3 = (instructionCombined[pc] >> 12) & 0x7;
+			instr.imm = (unsigned int)(instructionCombined[pc] & 0x80000000) >> 11; //imm[20]
+			instr.imm |= (instructionCombined[pc] & 0x7FE00000) >> 20; //imm[10:1]
+			instr.imm |= (instructionCombined[pc] & 0x100000) >> 9; //imm[11]
+			instr.imm |= instructionCombined[pc] & 0xFF0000; //imm[19:12]
 			break; 
 	}
 }
@@ -127,15 +127,39 @@ void instructionCase(){
             switch(instr.opcode){
                 case(0x03)  :                                               //lb
                     if(instr.funct3==0x00){
-                        reg[instr.rd] = mem[instr.rs1+instr.imm]>>24;
+                        reg[instr.rd] = instruction[instr.rs1+instr.imm];
                     }
-                    if(instr.funct3==0x04){                                 //lbu
-                        reg[instr.rd] = (unsigned)mem[instr.rs1+instr.imm]>>24;
+                    if(instr.funct3==0x01){
+                        reg[instr.rd] = instruction[instr.rs1+instr.imm]|instruction[instr.rs1+instr.imm+1]|instruction[instr.rs1+instr.imm+2]|instruction[instr.rs1+instr.imm+3];                            //lw
+                    }
+                    if(instr.funct3==0x04){                                                     //lbu
+                        reg[instr.rd] = (unsigned)instruction[instr.rs1+instr.imm];
                     }    
-                    
-                    //lh
-                    //lhu
-                case(0x13)  :
+                    if(instr.funct3==0x01){
+                        reg[instr.rd] = instruction[instr.rs1+instr.imm]|instruction[instr.rs1+instr.imm+1];           //lh
+                        
+                    }
+                    if(instr.funct3==0x05){                                                           
+                        reg[instr.rd] = (unsigned)(instruction[instr.rs1+instr.imm]|instruction[instr.rs1+instr.imm+1]);                          //lhu
+                    }
+               
+                    case(0x23)   :
+                    if(instr.funct3==0x00){
+                        instruction[reg[instr.rs1+instr.imm]] = reg[instr.rd];                                          //sb
+                    }
+                    if(instr.funct3==0x01){
+                        instruction[reg[instr.rs1+instr.imm]]      = reg[instr.rd];
+                        instruction[reg[instr.rs1+instr.imm+1]]    = reg[instr.rd]>>8;
+                        
+                    }
+                    if(instr.funct3==0x02){
+                        instruction[reg[instr.rs1+instr.imm]]      = reg[instr.rd];
+                        instruction[reg[instr.rs1+instr.imm+1]]    = reg[instr.rd]>>8;
+                        instruction[reg[instr.rs1+instr.imm+2]]    = reg[instr.rd]>>16;
+                        instruction[reg[instr.rs1+instr.imm+3]]    = reg[instr.rd]>>24;  
+                    }
+            
+                case(0x13)  : 
                     if(instr.funct3==0x00){
                         reg[instr.rd] = reg[0]+instr.imm;                                                   //addi
                     }
@@ -219,7 +243,17 @@ void instructionCase(){
                         if(reg[10]==1){
                             printf("%d",reg[11]);
                         }else if(reg[10]==4){
-                            //den der fucked up ting vi ikke kunne finde ud af...
+                          while(instruction[reg[ecallIndex]]!=0){
+                              printf("%C",reg[ecallIndex]);
+                              ecallIndex++;
+                          }
+                        }else if(reg[10]==10){
+                            exit(0);
+                        }else if(reg[10]==11){
+                            printf("%C",reg[11]);
+                        }else if(reg[10]==17){
+                            print("%C",reg[11]);
+                            exit(0);
                         }
                     default:
                     break;
@@ -232,17 +266,27 @@ void instructionCase(){
 
 
 void test(){
-     int test = -2147483648; 
+        char charBuf[4];
+        unsigned int num = 0x12345678;
+        charBuf[0] = num;
+        charBuf[1] = num>>8;
+        charBuf[2] = num>>16;
+        charBuf[3] = num>>24;
+        
+        printf("NUM: %X\n charBuf[0]: %X\n charBuf[1]: %X\n charBuf[2]: %X\n charBuf[3]: %X\n",num, charBuf[0],charBuf[1],charBuf[2],charBuf[3]);
 /*    char charBuf[3];
     sprintf(charBuf,"%i",testString);*/
     //charBuf[2]= 0;
 /*     printf("charBuf[0] = %d , charBuf[1] = %d , charBuf[2] = %d , charBuf[3] = %d",charBuf[0]-'0',charBuf[1]-'0',charBuf[2]-'0',charBuf[3]-'0');*/
     
     //printf("unsigned representation %u", neg);
-    
+/*    
      int ashift = test>>24; 
      int lshift = (unsigned)test>>24;
-    printf("original: %X, algorithmical shifted: %X,logical shifted: %X ",test, ashift,lshift);
+    printf("original: %X, algorithmical shifted: %X,logical shifted: %X ",test, ashift,lshift);*/
+    
+    
+    
 }
 
 
@@ -251,6 +295,9 @@ int main(int argc, char **argv){
 	formatFinder();
 	instructionCase();
 	printInstructionMatrix(); */
+    printf("1");
+    exit(0);
+    printf("2");
     test();
 	return 0;
 }
